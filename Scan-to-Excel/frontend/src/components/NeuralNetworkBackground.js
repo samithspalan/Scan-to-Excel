@@ -2,20 +2,6 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const NeuralNetworkBackground = ({ darkMode }) => {
-  const [mousePos, setMousePos] = React.useState({ x: 0, y: 0 });
-
-  // Handle Mouse Move for Parallax
-  React.useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 20, // -10 to 10 shift
-        y: (e.clientY / window.innerHeight - 0.5) * 20, 
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
   // Generate random stars for the space effect
   const starsArray = React.useMemo(() => Array.from({ length: 80 }).map((_, i) => ({
     id: i,
@@ -47,24 +33,14 @@ const NeuralNetworkBackground = ({ darkMode }) => {
   return (
     <div className={`fixed inset-0 pointer-events-none -z-10 overflow-hidden transition-colors duration-1000 ${darkMode ? 'bg-[#02040a]' : 'bg-gray-50'}`}>
       
-      {/* Dynamic Cursor Highlight / Mouse Nebula */}
+      {/* Centered Static Nebula Glow */}
       {darkMode && (
-         <motion.div 
-           animate={{ 
-             x: (mousePos.x * 20) + (window.innerWidth / 2) - 300,
-             y: (mousePos.y * 20) + (window.innerHeight / 2) - 300,
-           }}
-           transition={{ type: "spring", stiffness: 50, damping: 20 }}
-           className="absolute w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px]"
-         />
+         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/5 rounded-full blur-[120px]" />
       )}
 
-      {/* Parallax Nebula Layer */}
+      {/* Static Nebula Layer */}
       {darkMode && (
-        <motion.div
-           animate={{ x: mousePos.x * -1.5, y: mousePos.y * -1.5 }}
-           className="absolute inset-0"
-        >
+        <div className="absolute inset-0">
           <motion.div
             animate={{ 
               scale: [1, 1.2, 1],
@@ -81,15 +57,12 @@ const NeuralNetworkBackground = ({ darkMode }) => {
             transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }}
             className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-blue-900/30 rounded-full blur-[180px]"
           />
-        </motion.div>
+        </div>
       )}
 
-      {/* Parallax Starfield Layer */}
+      {/* Static Starfield Layer */}
       {darkMode && (
-         <motion.div 
-            animate={{ x: mousePos.x * -0.8, y: mousePos.y * -0.8 }}
-            className="absolute inset-0 z-0"
-         >
+         <div className="absolute inset-0 z-0">
            {starsArray.map(star => (
              <motion.div
                 key={`star-${star.id}`}
@@ -117,13 +90,10 @@ const NeuralNetworkBackground = ({ darkMode }) => {
                 transition={{ duration: star.duration, repeat: Infinity, delay: star.delay }}
              />
            ))}
-         </motion.div>
+         </div>
       )}
 
-      <motion.svg 
-        animate={{ x: mousePos.x * 1.2, y: mousePos.y * 1.2 }}
-        className="w-full h-full relative z-10 opacity-80"
-      >
+      <svg className="w-full h-full relative z-10 opacity-80">
         {/* Connective lines */}
         {neurons.slice(0, 15).map((neuron, idx) => {
           const nextNeuron = neurons[(idx + 5) % neurons.length];
@@ -171,7 +141,7 @@ const NeuralNetworkBackground = ({ darkMode }) => {
             }}
           />
         ))}
-      </motion.svg>
+      </svg>
     </div>
   );
 };
