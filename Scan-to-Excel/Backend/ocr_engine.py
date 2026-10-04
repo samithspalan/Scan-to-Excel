@@ -1,8 +1,17 @@
+import os
+
+# Disable oneDNN/MKLDNN to prevent Windows crash (ConvertPirAttribute2RuntimeAttribute error in PaddlePaddle 3.x)
+os.environ["PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT"] = "False"
+os.environ["FLAGS_use_mkldnn"] = "0"
+# Avoid slow external model host checks on every backend start.
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+# Limit CPU usage to prevent memory spikes during parallel execution
+os.environ["CPU_NUM"] = "1"
+
 try:
     import cv2
     import pandas as pd
     import numpy as np
-    import os
     import tempfile
     import re
     from paddlex import create_pipeline
@@ -16,13 +25,6 @@ except ImportError as e:
     print("[ERROR] Run: source venv/bin/activate")
     print("[ERROR] Or select 'venv' as your interpreter in your IDE.\n")
     sys.exit(1)
-
-# Disable oneDNN to fix Windows crash
-os.environ["FLAGS_use_mkldnn"] = "0"
-# Avoid slow external model host checks on every backend start.
-os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
-# Limit CPU usage to prevent memory spikes during parallel execution
-os.environ["CPU_NUM"] = "1"
 
 # Initialize PaddleX OCR pipeline once (expensive to load)
 ocr = create_pipeline(pipeline="OCR")

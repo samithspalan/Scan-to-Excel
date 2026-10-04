@@ -1,4 +1,10 @@
 import os
+
+os.environ["PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT"] = "False"
+os.environ["FLAGS_use_mkldnn"] = "0"
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+os.environ["CPU_NUM"] = "1"
+
 import re
 import tempfile
 from difflib import SequenceMatcher

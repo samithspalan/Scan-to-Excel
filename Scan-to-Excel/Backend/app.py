@@ -1,4 +1,11 @@
 import os
+
+# Disable oneDNN/MKLDNN before PaddlePaddle initialization to prevent Windows crash
+os.environ["PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT"] = "False"
+os.environ["FLAGS_use_mkldnn"] = "0"
+os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
+os.environ["CPU_NUM"] = "1"
+
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -9,6 +16,7 @@ import paddle
 paddle.set_flags({
     "FLAGS_eager_delete_scope": True,
     "FLAGS_fraction_of_cpu_memory_to_use": 0.1,
+    "FLAGS_use_mkldnn": False,
 })
 
 from gemini_autocorrect import autocorrect_with_gemini
