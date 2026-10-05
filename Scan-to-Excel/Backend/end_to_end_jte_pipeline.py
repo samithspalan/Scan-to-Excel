@@ -3,7 +3,7 @@ import os
 os.environ["PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT"] = "False"
 os.environ["FLAGS_use_mkldnn"] = "0"
 os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
-os.environ["CPU_NUM"] = "1"
+os.environ["CPU_NUM"] = str(min(8, max(2, os.cpu_count() or 4)))
 
 import re
 import tempfile
@@ -370,7 +370,14 @@ def _ocr_crop_with_conf(crop: np.ndarray) -> Tuple[str, float]:
     text_parts = []
     confs = []
     try:
-        preds = list(ocr.predict(path))
+        preds = list(
+            ocr.predict(
+                path,
+                use_doc_orientation_classify=False,
+                use_doc_unwarping=False,
+                use_textline_orientation=False,
+            )
+        )
         for pred in preds:
             rec_texts = getattr(pred, "rec_texts", None)
             rec_scores = getattr(pred, "rec_scores", None)
