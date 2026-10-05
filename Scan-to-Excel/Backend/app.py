@@ -4,7 +4,7 @@ import os
 os.environ["PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT"] = "False"
 os.environ["FLAGS_use_mkldnn"] = "0"
 os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
-os.environ["CPU_NUM"] = "1"
+os.environ["CPU_NUM"] = str(min(8, max(2, os.cpu_count() or 4)))
 
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
@@ -15,7 +15,7 @@ import paddle
 # Set Paddle memory flags for production stability
 paddle.set_flags({
     "FLAGS_eager_delete_scope": True,
-    "FLAGS_fraction_of_cpu_memory_to_use": 0.1,
+    "FLAGS_fraction_of_cpu_memory_to_use": 0.8,
     "FLAGS_use_mkldnn": False,
 })
 

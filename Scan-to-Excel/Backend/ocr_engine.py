@@ -1845,12 +1845,12 @@ def process_image(image_path):
             temp_paths.append(tmp.name)
             ocr_path = tmp.name
 
-        # OCR on enhanced image improves missing/weak text recall on noisy scans,
-        # while original-image OCR sometimes preserves thin handwritten strokes better.
-        # Merge both to reduce dropped rows.
-        ocr_results_enhanced = ocr_full_image(ocr_path, use_enhanced_fallback=True)
-        ocr_results_original = ocr_full_image(working_path, use_enhanced_fallback=True)
-        ocr_results_all = merge_ocr_results(ocr_results_enhanced, ocr_results_original)
+        # Fast primary OCR pass
+        ocr_results_all = ocr_full_image(ocr_path, use_enhanced_fallback=False)
+        # If very few texts found, merge results from the original image
+        if len(ocr_results_all) < 8:
+            ocr_results_original = ocr_full_image(working_path, use_enhanced_fallback=False)
+            ocr_results_all = merge_ocr_results(ocr_results_all, ocr_results_original)
 
         # Daily report forms are more reliable with full-page OCR + template reconstruction.
         # Support both OCR tuple shapes:
