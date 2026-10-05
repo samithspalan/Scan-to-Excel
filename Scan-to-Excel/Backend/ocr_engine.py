@@ -5,8 +5,8 @@ os.environ["PADDLE_PDX_ENABLE_MKLDNN_BYDEFAULT"] = "False"
 os.environ["FLAGS_use_mkldnn"] = "0"
 # Avoid slow external model host checks on every backend start.
 os.environ["PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK"] = "True"
-# Limit CPU usage to prevent memory spikes during parallel execution
-os.environ["CPU_NUM"] = "1"
+# Utilize multiple CPU cores for fast OCR inference
+os.environ["CPU_NUM"] = str(min(8, max(2, os.cpu_count() or 4)))
 
 try:
     import cv2
@@ -398,8 +398,13 @@ def ocr_full_image(image_path, use_enhanced_fallback=False):
         return collected
 
     try:
+        ocr_kwargs = {
+            "use_doc_orientation_classify": False,
+            "use_doc_unwarping": False,
+            "use_textline_orientation": False,
+        }
         # Pass 1: original image
-        predictions = list(ocr.predict(image_path))
+        predictions = list(ocr.predict(image_path, **ocr_kwargs))
         results = _collect(predictions)
 
         # Pass 2 (optional): contrast-enhanced fallback for sparse text results.
@@ -417,7 +422,7 @@ def ocr_full_image(image_path, use_enhanced_fallback=False):
                     enhanced_path = tmp.name
 
                 try:
-                    fallback_predictions = list(ocr.predict(enhanced_path))
+                    fallback_predictions = list(ocr.predict(enhanced_path, **ocr_kwargs))
                     fallback_results = _collect(fallback_predictions)
                 finally:
                     try:
