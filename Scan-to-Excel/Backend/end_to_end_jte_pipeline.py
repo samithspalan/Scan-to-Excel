@@ -45,7 +45,14 @@ _ML_TRIED = False
 def _get_ocr_pipeline():
     global _OCR_PIPELINE
     if _OCR_PIPELINE is None:
-        _OCR_PIPELINE = create_pipeline(pipeline="OCR")
+        from paddlex.inference.pipelines import load_pipeline_config
+        cfg = load_pipeline_config("OCR")
+        cfg["use_doc_preprocessor"] = False
+        cfg["use_textline_orientation"] = False
+        cfg["SubModules"]["TextDetection"]["model_name"] = "PP-OCRv5_mobile_det"
+        cfg["SubModules"]["TextRecognition"]["model_name"] = "PP-OCRv5_mobile_rec"
+        cfg["SubModules"]["TextRecognition"]["batch_size"] = 16
+        _OCR_PIPELINE = create_pipeline(config=cfg)
     return _OCR_PIPELINE
 
 

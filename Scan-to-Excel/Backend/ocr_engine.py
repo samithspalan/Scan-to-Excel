@@ -26,8 +26,17 @@ except ImportError as e:
     print("[ERROR] Or select 'venv' as your interpreter in your IDE.\n")
     sys.exit(1)
 
-# Initialize PaddleX OCR pipeline once (expensive to load)
-ocr = create_pipeline(pipeline="OCR")
+# Initialize PaddleX OCR pipeline once with fast mobile models for CPU inference
+from paddlex.inference.pipelines import load_pipeline_config
+
+_ocr_cfg = load_pipeline_config("OCR")
+_ocr_cfg["use_doc_preprocessor"] = False
+_ocr_cfg["use_textline_orientation"] = False
+_ocr_cfg["SubModules"]["TextDetection"]["model_name"] = "PP-OCRv5_mobile_det"
+_ocr_cfg["SubModules"]["TextRecognition"]["model_name"] = "PP-OCRv5_mobile_rec"
+_ocr_cfg["SubModules"]["TextRecognition"]["batch_size"] = 16
+
+ocr = create_pipeline(config=_ocr_cfg)
 _ML_PREDICTOR = None
 _ML_ATTEMPTED = False
 
